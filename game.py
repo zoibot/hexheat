@@ -34,7 +34,8 @@ while True:
             height = 0
             sinking = False
             current_hex = -1
-    draw_scene(current_hex, height)
+    draw_level(current_hex, height)
+    draw_player(0, 0, height)
     pygame.display.flip()
     flip_graphics()
 

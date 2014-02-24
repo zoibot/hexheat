@@ -90,7 +90,7 @@ hexagons = [
         (0.5, -0.8, (0.5, 1, 1))
         ]
 
-def draw_scene(index, height):
+def draw_level(index, height):
     glTranslate(0, 0, -5)
     glRotate(120, 1, 0 ,0)
     if index > -1:
@@ -108,6 +108,16 @@ def draw_scene(index, height):
         flag_color = hexagons[index][2]
         draw_flag(flag_color)
     glFlush()
+
+def draw_player(x, y, height):
+    glColor3f(1,1,1)
+    glTranslate(0, 0, -5)
+    glRotate(120, 1, 0 ,0)
+    quad = gluNewQuadric()
+    glPushMatrix()
+    glTranslate(x, y, height-0.35)
+    gluSphere(quad, 0.1, 8, 8)
+    glPopMatrix()
 
 def initialize_graphics():
     #init opengl
