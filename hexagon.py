@@ -68,6 +68,18 @@ def draw_hexagon_platform():
 
     glPopMatrix()
 
+def draw_flag(color):
+    glPushMatrix()
+    glColor3f(*color)
+    glBegin(GL_QUADS)
+    glNormal3f(0, 0, 1)
+    glVertex3f(0.8, 0.8, -5)
+    glVertex3f(0.9, 0.8, -5)
+    glVertex3f(0.9, 0.9, -5)
+    glVertex3f(0.8, 0.9, -5)
+    glEnd()
+    glPopMatrix()
+
 hexagons = [
         (-0.5, 0.8, (1, 0.5, 0.5)),
         (0.5, 0.8, (0.5, 1, 0.5)),
@@ -81,14 +93,20 @@ hexagons = [
 def draw_scene(index, height):
     glTranslate(0, 0, -5)
     glRotate(120, 1, 0 ,0)
+    if index > -1:
+        glTranslate(0, 0, height)
     for i, (x, y, color) in enumerate(hexagons):
         glColor3f(*color)
         glPushMatrix()
         glTranslate(x, y, 0)
         if i == index:
-            glTranslate(0, 0, height)
+            glTranslate(0, 0, -height)
         draw_hexagon_platform()
         glPopMatrix()
+    glLoadIdentity()
+    if index > -1:
+        flag_color = hexagons[index][2]
+        draw_flag(flag_color)
     glFlush()
 
 def initialize_graphics():
