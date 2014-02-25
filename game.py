@@ -4,38 +4,58 @@ import pygame
 from pygame.locals import *
 
 from hexagon import *
-
-pygame.init()
-#init pygame display
-screen = pygame.display.set_mode((640,480), pygame.OPENGL | pygame.DOUBLEBUF)
+from player import Player
 
 initialize_graphics()
 
-rising = False
-sinking = False
+WAITING = 0
+FLAG_SHOWN = 1
+SINKING = 2
+RISING = 3
+
+state = WAITING
 current_hex = -1
 height = 0
+frames = 0
+
+player = Player()
+
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             sys.exit()
         elif event.type == KEYUP:
-            if not (rising or sinking):
-                current_hex = randint(0, 6)
-                rising = True
-    if rising:
+            if event.key == K_SPACE:
+                if state == WAITING:
+                    current_hex = randint(0, 6)
+                    state = FLAG_SHOWN
+                    frames = 200 # this is dumb
+    keys = pygame.key.get_pressed()
+    if keys[K_LEFT]:
+        player.move(-0.01, 0)
+    elif keys[K_RIGHT]:
+        player.move(0.01, 0)
+    if keys[K_UP]:
+        player.move(0, -0.01)
+    elif keys[K_DOWN]:
+        player.move(0, 0.01)
+ 
+    if state == FLAG_SHOWN:
+        frames -= 1
+        if not frames:
+            state = SINKING
+
+    if state == SINKING:
         height += 0.01
         if height >= 1:
-            rising = False
-            sinking = True
-    if sinking:
+            state = RISING
+    if state == RISING:
         height -= 0.01
         if height <= 0:
             height = 0
-            sinking = False
+            state = WAITING
             current_hex = -1
     draw_level(current_hex, height)
-    draw_player(0, 0, height)
-    pygame.display.flip()
+    draw_player(player.x, player.y, height)
     flip_graphics()
 
