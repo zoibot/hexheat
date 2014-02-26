@@ -84,29 +84,46 @@ def project(point, axis):
     denom = axis[0] * axis[0] + axis[1] * axis[1]
     return num/denom
 
-def which_platform(x, y):
-    candidate_hexagons = range(6)
-    for axis in hexagon_normals:
-        location = project((x,y), axis)
-        for hexagon in candidate_hexagons:
-            pass
+axes = [
+    [1, 0],
+    [1/2, sqrt(3)/2],
+    [-1/2, sqrt(3)/2]
+    ]
 
-def draw_level(index, height):
+def which_platform(x, y):
+    candidate_hexagons = range(7)
+    for axis in axes:
+        location = project((x,y), axis)
+        def hexagon_contains_on_axis(i):
+            # figure out how the hexagon is offset to figure out how its project changes
+            offset = project(hexagons[i], axis)
+            # the hexagon will always be +-sqrt(3)/4 from the center but offset by its position
+            return -sqrt(3)/4 <= (location - offset) and (location - offset) < sqrt(3)/4
+        candidate_hexagons = [hexagon for hexagon in candidate_hexagons if hexagon_contains_on_axis(hexagon)]
+    if len(candidate_hexagons) > 1:
+        print "oh god"
+        print candidate_hexagons
+    elif len(candidate_hexagons) == 1:
+        return candidate_hexagons[0]
+    else:
+        return -1
+
+def draw_level(moving_hexagon, player_hexagon, height):
     glTranslate(0, 0, -5)
     glRotate(120, 1, 0 ,0)
-    if index > -1:
+    if moving_hexagon > -1:
         glTranslate(0, 0, height)
     for i, (x, y, color) in enumerate(hexagons):
         glColor3f(*color)
         glPushMatrix()
         glTranslate(x, y, 0)
-        if i == index:
+        if i == moving_hexagon:
             glTranslate(0, 0, -height)
         draw_hexagon_platform()
         glPopMatrix()
     glLoadIdentity()
-    if index > -1:
-        flag_color = hexagons[index][2]
+    if moving_hexagon > -1:
+        flag_color = hexagons[moving_hexagon][2]
         draw_flag(flag_color)
     glFlush()
 
