@@ -1,4 +1,5 @@
 from random import randint
+from math import floor
 
 import pygame
 from pygame.locals import *
@@ -20,6 +21,7 @@ height = 0
 
 delay = 0
 waiting_delay = 150 
+speed = 1
 
 player = Player()
 previous_position = 0, 0
@@ -62,7 +64,7 @@ while True:
         if not waiting_delay:
             current_hex = randint(0, 6)
             state = FLAG_SHOWN
-            delay = 150 # this is dumb
+            delay = floor(150 * speed) # TODO this is dumb
 
     if state == FLAG_SHOWN:
         delay -= 1
@@ -78,9 +80,10 @@ while True:
         if height <= 0:
             height = 0
             state = WAITING
-            waiting_delay = 150
+            waiting_delay = floor(150 * speed)
             current_hex = -1
             score += 1
+            speed -= 0.1
     
     if state != DEAD and player.height > 0.75:
         state = DEAD
