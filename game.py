@@ -27,6 +27,9 @@ while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             sys.exit()
+        elif event.type == KEYDOWN:
+            if event.key == K_SPACE:
+                player.jump()
                 
     # player movement
     previous_position = player.x, player.y
@@ -46,6 +49,7 @@ while True:
     moving_up = new_hexagon != player_hexagon and new_hexagon == current_hex and height > 0
     if not moving_up and new_hexagon != -1:
         player.move(move_x, move_y)
+
     floor_height = 0 if current_hex == player_hexagon else height
     player.update(floor_height)
  
@@ -70,7 +74,7 @@ while True:
         if height <= 0:
             height = 0
             state = WAITING
-            delay = 150
+            waiting_delay = 150
             current_hex = -1
 
     draw_level(current_hex, player_hexagon, height)
