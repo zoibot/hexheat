@@ -1,21 +1,37 @@
 import sys
+from math import sqrt
 
 import pygame
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+# TODO rotate this 90 degrees so I don't have to do this in opengl
+hexagon_points = [
+        [0.5, 0],
+        [0.25, sqrt(3) * 0.25],
+        [-0.25, sqrt(3) * 0.25],
+        [-0.5, 0],
+        [-0.25, -sqrt(3) * 0.25],
+        [0.25, -sqrt(3) * 0.25],
+        [0.5, 0]
+        ]
+
+hexagon_normals = [
+        [sqrt(3)/2, 1/2],
+        [0, 1],
+        [-sqrt(3)/2, 1/2],
+        [-sqrt(3)/2, -1/2],
+        [0, -1],
+        [sqrt(3)/2, -1/2]
+        ]
+
 def draw_hexagon():
     glBegin(GL_TRIANGLE_FAN)
     glNormal3f(0, 0, 1)
-    glVertex3f(0, 0, 0)
-    glVertex3f(0.5, 0, 0)
-    glVertex3f(0.25, 0.5, 0)
-    glVertex3f(-0.25, 0.5, 0)
-    glVertex3f(-0.5, 0, 0)
-    glVertex3f(-0.25, -0.5, 0)
-    glVertex3f(0.25, -0.5, 0)
-    glVertex3f(0.5, 0, 0)
+    glVertex2f(0, 0)
+    for point in hexagon_points:
+        glVertex2f(*point)
     glEnd()
 
 def draw_hexagon_platform():
@@ -31,41 +47,12 @@ def draw_hexagon_platform():
     glPopMatrix()
 
     glBegin(GL_QUADS)
-    glNormal3f(0.5, 0.25, 0)
-    glVertex3f(0.5, 0, 0)
-    glVertex3f(0.5, 0, -0.25)
-    glVertex3f(0.25, 0.5, -0.25)
-    glVertex3f(0.25, 0.5, 0)
-
-    glNormal3f(0, 1, 0)
-    glVertex3f(0.25, 0.5, 0)
-    glVertex3f(0.25, 0.5, -0.25)
-    glVertex3f(-0.25, 0.5, -0.25)
-    glVertex3f(-0.25, 0.5, 0)
-
-    glNormal3f(-0.5, 0.25, 0)
-    glVertex3f(-0.25, 0.5, 0)
-    glVertex3f(-0.25, 0.5, -0.25)
-    glVertex3f(-0.5, 0, -0.25)
-    glVertex3f(-0.5, 0, 0)
-
-    glNormal3f(-0.5, -0.25, 0)
-    glVertex3f(-0.5, 0, 0)
-    glVertex3f(-0.5, 0, -0.25)
-    glVertex3f(-0.25, -0.5, -0.25)
-    glVertex3f(-0.25, -0.5, 0)
-
-    glNormal3f(0, -1, 0)
-    glVertex3f(-0.25, -0.5, 0)
-    glVertex3f(-0.25, -0.5, -0.25)
-    glVertex3f(0.25, -0.5, -0.25)
-    glVertex3f(0.25, -0.5, 0)
-
-    glNormal3f(0.5, -0.25, 0)
-    glVertex3f(0.25, -0.5, 0)
-    glVertex3f(0.25, -0.5, -0.25)
-    glVertex3f(0.5, 0, -0.25)
-    glVertex3f(0.5, 0, 0)
+    for i in xrange(6):
+        glNormal3f(hexagon_normals[i][0], hexagon_normals[i][1], 0)
+        glVertex3f(hexagon_points[i][0], hexagon_points[i][1], 0)
+        glVertex3f(hexagon_points[i][0], hexagon_points[i][1], -0.25)
+        glVertex3f(hexagon_points[(i+1)][0], hexagon_points[(i+1)][1], -0.25)
+        glVertex3f(hexagon_points[(i+1)][0], hexagon_points[(i+1)][1], 0)
     glEnd()
 
     glPopMatrix()
@@ -83,14 +70,26 @@ def draw_flag(color):
     glPopMatrix()
 
 hexagons = [
-        (-0.5, 0.8, (1, 0.5, 0.5)),
-        (0.5, 0.8, (0.5, 1, 0.5)),
-        (-1, 0, (0.5, 0.5, 1)),
+        (-sqrt(3)/4, 0.75, (1, 0.5, 0.5)),
+        (sqrt(3)/4, 0.75, (0.5, 1, 0.5)),
+        (-sqrt(3)/2, 0, (0.5, 0.5, 1)),
         (0, 0, (0.8, 0.8, 0.8)),
-        (1, 0, (1, 1, 0.5)),
-        (-0.5, -0.8, (1, 0.5, 1)),
-        (0.5, -0.8, (0.5, 1, 1))
+        (sqrt(3)/2, 0, (1, 1, 0.5)),
+        (-sqrt(3)/4, -0.75, (1, 0.5, 1)),
+        (sqrt(3)/4, -0.75, (0.5, 1, 1))
         ]
+
+def project(point, axis):
+    num = point[0] * axis[0] + point[1] * axis[1]
+    denom = axis[0] * axis[0] + axis[1] * axis[1]
+    return num/denom
+
+def which_platform(x, y):
+    candidate_hexagons = range(6)
+    for axis in hexagon_normals:
+        location = project((x,y), axis)
+        for hexagon in candidate_hexagons:
+            pass
 
 def draw_level(index, height):
     glTranslate(0, 0, -5)

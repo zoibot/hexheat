@@ -29,7 +29,7 @@ while True:
                 if state == WAITING:
                     current_hex = randint(0, 6)
                     state = FLAG_SHOWN
-                    frames = 200 # this is dumb
+                    frames = 150 # this is dumb
     keys = pygame.key.get_pressed()
     if keys[K_LEFT]:
         player.move(-0.01, 0)
