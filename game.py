@@ -12,6 +12,7 @@ WAITING = 0
 FLAG_SHOWN = 1
 SINKING = 2
 RISING = 3
+DEAD = 4
 
 state = WAITING
 current_hex = -1
@@ -21,14 +22,15 @@ delay = 0
 waiting_delay = 150 
 
 player = Player()
-previous_position = 0,0
+previous_position = 0, 0
+score = 0
 
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             sys.exit()
         elif event.type == KEYDOWN:
-            if event.key == K_SPACE:
+            if event.key == K_SPACE and state != DEAD:
                 player.jump()
                 
     # player movement
@@ -44,10 +46,12 @@ while True:
         move_y -= 0.01
     elif keys[K_DOWN]:
         move_y = 0.01
+
     new_hexagon = which_platform(player.x + move_x, player.y + move_y)
     player_hexagon = which_platform(player.x, player.y)
+
     moving_up = new_hexagon != player_hexagon and new_hexagon == current_hex and height > 0
-    if not moving_up and new_hexagon != -1:
+    if ((not moving_up) or player.height <= 0) and new_hexagon != -1 and state != DEAD:
         player.move(move_x, move_y)
 
     floor_height = 0 if current_hex == player_hexagon else height
@@ -76,8 +80,14 @@ while True:
             state = WAITING
             waiting_delay = 150
             current_hex = -1
+            score += 1
+    
+    if state != DEAD and player.height > 0.75:
+        state = DEAD
+        score = str(score) + " You're dead"
 
     draw_level(current_hex, player_hexagon, height)
     draw_player(player.x, player.y, player.height)
+    draw_score(score)
     flip_graphics()
 

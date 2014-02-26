@@ -59,13 +59,13 @@ def draw_hexagon_platform():
 
 def draw_flag(color):
     glPushMatrix()
-    glColor3f(*color)
+    glColor4f(color[0], color[1], color[2], 1)
     glBegin(GL_QUADS)
-    glNormal3f(0, 0, 1)
-    glVertex3f(0.8, 0.8, -5)
-    glVertex3f(0.9, 0.8, -5)
-    glVertex3f(0.9, 0.9, -5)
-    glVertex3f(0.8, 0.9, -5)
+    glNormal3f(1, 0, 0.5)
+    glVertex3f(0.7, 0.7, -5)
+    glVertex3f(1, 0.7, -5)
+    glVertex3f(1, 1, -5)
+    glVertex3f(0.7, 1, -5)
     glEnd()
     glPopMatrix()
 
@@ -125,10 +125,29 @@ def draw_level(moving_hexagon, player_hexagon, height):
     if moving_hexagon > -1:
         flag_color = hexagons[moving_hexagon][2]
         draw_flag(flag_color)
+    draw_lava()
     glFlush()
 
+def draw_lava():
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, (1, 0.4, 0, 1))
+    glColor4f(0, 0, 0, 0.8)
+    glPushMatrix()
+
+    glTranslate(0, 0, -5)
+    glRotate(120, 1, 0 ,0)
+
+    glBegin(GL_QUADS)
+    glVertex3f(-10, -10, 0.5)
+    glVertex3f(10, -10, 0.5)
+    glVertex3f(10, 10, 0.5)
+    glVertex3f(-10, 10, 0.5)
+    glEnd()
+
+    glPopMatrix()
+    glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, (0, 0, 0))
+
 def draw_player(x, y, height):
-    glColor3f(1,1,1)
+    glColor3f(1, 1, 1)
     glTranslate(0, 0, -5)
     glRotate(120, 1, 0 ,0)
     quad = gluNewQuadric()
@@ -136,6 +155,43 @@ def draw_player(x, y, height):
     glTranslate(x, y, height-0.35)
     gluSphere(quad, 0.1, 8, 8)
     glPopMatrix()
+
+def draw_score(score):
+    font = pygame.font.Font(None, 30)
+    scoretext = font.render("Score:" + str(score), 1, (255,255,255))
+
+    textureData = pygame.image.tostring(scoretext, "RGBA", 1)
+ 
+    width = scoretext.get_width()
+    height = scoretext.get_height()
+ 
+    texture = glGenTextures(1)
+    glBindTexture(GL_TEXTURE_2D, texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+        GL_UNSIGNED_BYTE, textureData)
+
+    glPushMatrix()
+    glLoadIdentity()
+
+    #glColor3f(1,0,0)
+    glBegin(GL_QUADS)
+    glNormal3f(0, 0, 1)
+    glTexCoord2f(0, 0)
+    glVertex3f(-1, 1.2, -5)
+    glTexCoord2f(1, 0)
+    glVertex3f(1, 1.2, -5)
+    glTexCoord2f(1, 1)
+    glVertex3f(1, 1.7, -5)
+    glTexCoord2f(0, 1)
+    glVertex3f(-1, 1.7, -5)
+
+    glEnd()
+    glBindTexture(GL_TEXTURE_2D, -1)
+    glPopMatrix()
+    glFlush()
+ 
 
 def initialize_graphics():
     #init pygame
@@ -147,6 +203,11 @@ def initialize_graphics():
     glClearColor(0,0,0,0)
     glDisable(GL_CULL_FACE)
     glEnable(GL_DEPTH_TEST)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    #texture
+    glEnable(GL_TEXTURE_2D)
     
     #lighting
     glEnable(GL_LIGHTING)
